@@ -1,56 +1,66 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { deleteProduct } from '../redux/productSlice'; // Adjust import path as needed
-import { BiAddToQueue, BiCartAdd, BiPlus, BiSolidPencil } from 'react-icons/bi';
-import { BiTrash } from 'react-icons/bi';
-import { BsEyeFill } from 'react-icons/bs';
+import { deleteProduct, updateProduct } from '../redux/productSlice';
+import { BiPlus, BiSolidPencil, BiTrash } from 'react-icons/bi';
 import ProductModal from './ProductInputForm';
 import { addToCart } from "../redux/cartSlice";
 
-const ProductItems = ({ product }) => {
+const ProductItems = ({ product, index }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [currentProduct, setCurrentProduct] = useState(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const cart = useSelector(state => state.cart);
+const [editMode,setEditMode] = useState(false);
   const handleDeleteClick = (productId) => {
     dispatch(deleteProduct(productId));
   };
 
-  const handleEditClick = () => {
-    navigate(`/edit-product/${product.id}`);
-  };
-
-  const openModal = (event) => {
-    event.preventDefault();
+  const handleEditClick = (product) => {
+    setCurrentProduct(product);
     setIsOpen(true);
+    setEditMode(true);
   };
 
   const closeModal = () => {
     setIsOpen(false);
+    setCurrentProduct(null);
+  };
+
+  const handleSaveChanges = (updatedProduct) => {
+    dispatch(updateProduct(updatedProduct));
+    closeModal();
   };
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart(product));
-}
+    const existingProduct = cart.find(item => item.id === product.id);
+
+    if (existingProduct) {
+      dispatch(addToCart({
+        ...product,
+        productQuantity: existingProduct.productQuantity + 1
+      }));
+    } else {
+      dispatch(addToCart({ ...product, productQuantity: 1 }));
+    }
+  };
 
   return (
     <tr>
-    <td>{product.id}</td>
+      <td>{index}</td>
       <td>{product.productName}</td>
       <td className="fw-normal">{product.productDescription}</td>
       <td className="fw-normal">{product.productPrice}</td>
-      {/* <td className="fw-normal">{product.productQuantity}</td> */}
-      <td style={{ width: "5%" }}>
-      </td>
-      <td  className='fw-normal d-flex gap-2'>
-      <Button variant="outline-primary" onClick={handleAddToCart(product)}>
+      <td style={{ width: "5%" }}></td>
+      <td className='fw-normal d-flex gap-2'>
+        <Button variant="outline-primary" onClick={() => handleAddToCart(product)}>
           <div className="d-flex align-items-center justify-content-center gap-2">
             <BiPlus />
           </div>
         </Button>
-      <Button variant="outline-primary" onClick={handleEditClick}>
+        <Button variant="outline-primary" onClick={() => handleEditClick(product)}>
           <div className="d-flex align-items-center justify-content-center gap-2">
             <BiSolidPencil />
           </div>
@@ -61,16 +71,13 @@ const ProductItems = ({ product }) => {
           </div>
         </Button>
         <ProductModal
-        showModal={isOpen}
-        handleClose={closeModal}
-        info={{
-          id: " ",
-          productName: " ",
-          productDescription: " ",
-          productPrice: " ",
-          productQuantity: " ",
-        }}
-      />
+          showModal={isOpen}
+          handleClose={closeModal}
+          info={currentProduct}
+          onSaveChanges={handleSaveChanges}
+          editMode={editMode}
+          setEditMode={setEditMode}
+        />
       </td>
     </tr>
   );

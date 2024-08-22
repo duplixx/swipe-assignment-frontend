@@ -9,6 +9,7 @@ import ProductModal from '../components/ProductInputForm';
 
 const ProductsTab = () => {
   const dispatch = useDispatch();
+  const [editMode,setEditMode] = useState(false);
   const products = useSelector(state => state.products);
   const [show, setShow] = useState(false);
   const handleAddProduct = () => {
@@ -29,6 +30,9 @@ const ProductsTab = () => {
   const closeModal = () => {
     setShow(false);
   }
+  const handleProductChange = (id, updatedProduct) => {
+    dispatch(updateProduct(id, updatedProduct)); // Update the product in Redux store
+};
 
   return (
     <Row>
@@ -42,6 +46,8 @@ const ProductsTab = () => {
           productPrice: " ",
           productQuantity: " ",
         }}
+        editMode={false}
+        setEditMode={setEditMode}
       />
       <Col md={8} lg={9}>
       <Card className="p-4 p-xl-5 my-3 my-xl-4">
@@ -56,8 +62,8 @@ const ProductsTab = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => (
-                    <ProductItems product={product} />
+                  {products.map((product,index) => (
+                    <ProductItems product={product} index={index+1} />
                   ))}
                 </tbody>
               </Table>
@@ -65,19 +71,9 @@ const ProductsTab = () => {
     </Col>
     <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
-            {/* <Button
-              variant="dark"
-              onClick={handleAddInvoice}
-              className="d-block w-100 mb-2"
-            >
-              {isEdit ? "Update Invoice" : "Add Invoice"}
-            </Button> */}
             <Button
               className="d-block w-100 mb-2"
             onClick={handleOpenModal}>Add New Product</Button>
-            {/* <Button variant="primary" type="submit" className="d-block w-100">
-              Review Invoice
-            </Button> */}
             </div>
       </Col>
     </Row>

@@ -8,7 +8,7 @@ import Modal from "react-bootstrap/Modal";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "./EditableField";
 
-const ProductInputModal = ({ showModal, handleClose }) => {
+const ProductInputModal = ({ showModal, handleClose,editMode,setEditMode }) => {
     const dispatch = useDispatch();
     const products = useSelector(state => state.products);
 
@@ -17,10 +17,9 @@ const ProductInputModal = ({ showModal, handleClose }) => {
         productName: '',
         productDescription: '',
         productPrice: '',
-        productQuantity: '',
+        productQuantity: '1',
     });
 
-    const [editMode, setEditMode] = useState(false); // To switch between add and update modes
 
     useEffect(() => {
         if (editMode && showModal) {
@@ -38,14 +37,12 @@ const ProductInputModal = ({ showModal, handleClose }) => {
             } else {
                 dispatch(addProduct({ ...newProduct, id: generateRandomId() }));
             }
-
-            // Reset the form and close the modal
             setNewProduct({
                 id: '',
                 productName: '',
                 productDescription: '',
                 productPrice: '',
-                productQuantity: '',
+                productQuantity: '1',
             });
             setEditMode(false);
             handleClose(); 
@@ -55,12 +52,6 @@ const ProductInputModal = ({ showModal, handleClose }) => {
     const handleProductChange = (e) => {
         const { name, value } = e.target;
         setNewProduct(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleEditClick = (product) => {
-        setNewProduct({ ...product });
-        setEditMode(true);
-        handleClose(); // Ensure modal is open for editing
     };
 
     const handleDeleteProduct = (id) => {

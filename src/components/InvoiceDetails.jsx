@@ -72,7 +72,7 @@ const InvoiceForm = () => {
 
   const handleRowDel = (itemToDelete) => {
     const updatedItems = formData.items.filter(
-      (item) => item.itemId !== itemToDelete.itemId
+      (item) => item.productId !== itemToDelete.productId
     );
     setFormData({ ...formData, items: updatedItems });
     handleCalculateTotal();

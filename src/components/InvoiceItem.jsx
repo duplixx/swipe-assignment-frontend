@@ -8,8 +8,8 @@ import { useSelector } from "react-redux";
 
 const InvoiceItem = (props) => {
   const { onItemizedItemEdit, currency, onRowDel, onRowAdd } = props;
-  const products = useSelector(state => state.products);
-  const itemTable = products.map((item) => (
+  const cart = useSelector(state => state.cart);
+  const itemTable = cart.map((item) => (
     <ItemRow
       key={item.id}
       item={item}
