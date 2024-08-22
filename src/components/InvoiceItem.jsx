@@ -32,9 +32,9 @@ const InvoiceItem = (props) => {
         </thead>
         <tbody>{itemTable}</tbody>
       </Table>
-      <Button className="fw-bold" onClick={onRowAdd}>
+      {/* <Button className="fw-bold" onClick={onRowAdd}>
         Add Item
-      </Button>
+      </Button> */}
     </div>
   );
 };

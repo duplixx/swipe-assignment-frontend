@@ -9,14 +9,13 @@ import ProductModal from '../components/ProductInputForm';
 
 const ProductsTab = () => {
   const dispatch = useDispatch();
-  const [editMode,setEditMode] = useState(false);
   const products = useSelector(state => state.products);
   const [show, setShow] = useState(false);
   const handleAddProduct = () => {
     const newProduct = { id: generateRandomId(), name: '', price: '0.00' };
     dispatch(addProduct(newProduct));
   };
-
+  const [editMode,setEditMode] = useState(false);
   const handleEditProduct = (id, updatedData) => {
     dispatch(updateProduct({ id, updatedData }));
   };
@@ -26,12 +25,13 @@ const ProductsTab = () => {
   };
   const handleOpenModal = () => {
     setShow(true);
+    setEditMode(false);
   }
   const closeModal = () => {
     setShow(false);
   }
   const handleProductChange = (id, updatedProduct) => {
-    dispatch(updateProduct(id, updatedProduct)); // Update the product in Redux store
+    dispatch(updateProduct(id, updatedProduct));
 };
 
   return (
@@ -48,6 +48,7 @@ const ProductsTab = () => {
         }}
         editMode={false}
         setEditMode={setEditMode}
+        productIdToEdit={null}
       />
       <Col md={8} lg={9}>
       <Card className="p-4 p-xl-5 my-3 my-xl-4">

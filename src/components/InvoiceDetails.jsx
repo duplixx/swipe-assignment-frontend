@@ -9,20 +9,20 @@ import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
 import { BiArrowBack } from "react-icons/bi";
 import InputGroup from "react-bootstrap/InputGroup";
-import { useDispatch } from "react-redux";
+import { useDispatch,useSelector } from "react-redux";
 import { addInvoice, updateInvoice } from "../redux/invoicesSlice";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/hooks";
 import { addProduct,deleteProduct,updateProduct } from "../redux/productSlice";
-const InvoiceForm = () => {
+const InvoiceForm = ( ) => {
   const dispatch = useDispatch();
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const isCopy = location.pathname.includes("create");
   const isEdit = location.pathname.includes("edit");
-
+  const cart = useSelector(state => state.cart);
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
   const { getOneInvoice, listSize } = useInvoiceListData();
@@ -78,56 +78,60 @@ const InvoiceForm = () => {
     handleCalculateTotal();
   };
 
-const handleAddEvent = () => {
-    const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-    const newItem = {
-        productId: id,
-        productName: "",
-        productDescription: "",
-        productPrice: "1.00",
-        productQuantity: 1,
-    };
+// const handleAddEvent = () => {
+//     const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+//     const newItem = {
+//         productId: id,
+//         productName: "",
+//         productDescription: "",
+//         productPrice: "1.00",
+//         productQuantity: 1,
+//     };
+//     setFormData((prevFormData) => {
+//         const updatedItems = [...prevFormData.items, newItem];
+//         return {
+//             ...prevFormData,
+//             items: updatedItems,
+//         };
+//     });
+//     dispatch(addProduct(newItem)); // Dispatch the addProduct action with the new item
+//     handleCalculateTotal();
+// };
+
+const handleCalculateTotal = () => {
     setFormData((prevFormData) => {
-        const updatedItems = [...prevFormData.items, newItem];
+        let subTotal = 0;
+        cart.forEach((product) => {
+            subTotal += parseFloat(product.productPrice) * product.productQuantity;
+        });
+        // prevFormData.items.forEach((item) => {
+        //     const product = cart.find((p) => p.productId === item.productId);
+        //     if (product) {
+        //         subTotal += parseFloat(product.productPrice) * item.productQuantity;
+        //     }
+        // });
+
+        const taxAmount = parseFloat(
+            subTotal * (prevFormData.taxRate / 100)
+        ).toFixed(2);
+        const discountAmount = parseFloat(
+            subTotal * (prevFormData.discountRate / 100)
+        ).toFixed(2);
+        const total = (
+            subTotal -
+            parseFloat(discountAmount) +
+            parseFloat(taxAmount)
+        ).toFixed(2);
+
         return {
             ...prevFormData,
-            items: updatedItems,
+            subTotal: parseFloat(subTotal).toFixed(2),
+            taxAmount,
+            discountAmount,
+            total,
         };
     });
-    dispatch(addProduct(newItem)); // Dispatch the addProduct action with the new item
-    handleCalculateTotal();
 };
-
-  const handleCalculateTotal = () => {
-    setFormData((prevFormData) => {
-      let subTotal = 0;
-
-      prevFormData.items.forEach((item) => {
-        subTotal +=
-          parseFloat(item.productPrice).toFixed(2) * parseInt(item.productQuantity);
-      });
-
-      const taxAmount = parseFloat(
-        subTotal * (prevFormData.taxRate / 100)
-      ).toFixed(2);
-      const discountAmount = parseFloat(
-        subTotal * (prevFormData.discountRate / 100)
-      ).toFixed(2);
-      const total = (
-        subTotal -
-        parseFloat(discountAmount) +
-        parseFloat(taxAmount)
-      ).toFixed(2);
-
-      return {
-        ...prevFormData,
-        subTotal: parseFloat(subTotal).toFixed(2),
-        taxAmount,
-        discountAmount,
-        total,
-      };
-    });
-  };
 
   const onItemizedItemEdit = (evt, id) => {
     const updatedItems = formData.items.map((oldItem) => {
@@ -307,7 +311,6 @@ const handleAddEvent = () => {
             </Row>
             <InvoiceItem
               onItemizedItemEdit={onItemizedItemEdit}
-              onRowAdd={handleAddEvent}
               onRowDel={handleRowDel}
               currency={formData.currency}
               items={formData.items}

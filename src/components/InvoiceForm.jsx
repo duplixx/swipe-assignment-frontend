@@ -4,7 +4,7 @@ import ProductsTab from '../pages/Products';
 import InvoiceDetails from './InvoiceDetails';
 
 const InvoiceForm = () => {
-  const [key, setKey] = useState('invoice'); // Default tab
+  const [key, setKey] = useState('invoice'); 
 
   return (
     <div>

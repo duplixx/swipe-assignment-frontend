@@ -19,7 +19,6 @@ const [editMode,setEditMode] = useState(false);
   };
 
   const handleEditClick = (product) => {
-    setCurrentProduct(product);
     setIsOpen(true);
     setEditMode(true);
   };
@@ -45,6 +44,7 @@ const [editMode,setEditMode] = useState(false);
     } else {
       dispatch(addToCart({ ...product, productQuantity: 1 }));
     }
+    alert('Product added to invoice items');
   };
 
   return (
@@ -77,6 +77,7 @@ const [editMode,setEditMode] = useState(false);
           onSaveChanges={handleSaveChanges}
           editMode={editMode}
           setEditMode={setEditMode}
+          productIdToEdit={currentProduct?.id}
         />
       </td>
     </tr>
