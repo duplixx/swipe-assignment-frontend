@@ -4,13 +4,13 @@ export const productsSlice = createSlice({
   name: 'products',
   initialState: [],
   reducers: {
-    addItem: (state, action) => {
+    addProduct: (state, action) => {
       state.push(action.payload);
     },
-    deleteItem: (state, action) => {
+    deleteProduct: (state, action) => {
       return state.filter((item) => item.itemId !== action.payload);
     },
-    updateItem: (state, action) => {
+    updateProduct: (state, action) => {
       const index = state.findIndex(
         (item) => item.itemId === action.payload.id
       );

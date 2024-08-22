@@ -4,11 +4,12 @@ import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "./EditableField";
+import { useSelector } from "react-redux";
 
 const InvoiceItem = (props) => {
-  const { onItemizedItemEdit, currency, onRowDel, items, onRowAdd } = props;
-
-  const itemTable = items.map((item) => (
+  const { onItemizedItemEdit, currency, onRowDel, onRowAdd } = props;
+  const products = useSelector(state => state.products);
+  const itemTable = products.map((item) => (
     <ItemRow
       key={item.id}
       item={item}
@@ -47,48 +48,48 @@ const ItemRow = (props) => {
       <td style={{ width: "100%" }}>
         <EditableField
           onItemizedItemEdit={(evt) =>
-            props.onItemizedItemEdit(evt, props.item.itemId)
+            props.onItemizedItemEdit(evt, props.item.productId)
           }
           cellData={{
             type: "text",
             name: "itemName",
             placeholder: "Item name",
-            value: props.item.itemName,
-            id: props.item.itemId,
+            value: props.item.productName,
+            id: props.item.productId,
           }}
         />
         <EditableField
           onItemizedItemEdit={(evt) =>
-            props.onItemizedItemEdit(evt, props.item.itemId)
+            props.onItemizedItemEdit(evt, props.item.productId)
           }
           cellData={{
             type: "text",
             name: "itemDescription",
             placeholder: "Item description",
-            value: props.item.itemDescription,
-            id: props.item.itemId,
+            value: props.item.productDescription,
+            id: props.item.productId,
           }}
         />
       </td>
       <td style={{ minWidth: "70px" }}>
         <EditableField
           onItemizedItemEdit={(evt) =>
-            props.onItemizedItemEdit(evt, props.item.itemId)
+            props.onItemizedItemEdit(evt, props.item.productId)
           }
           cellData={{
             type: "number",
             name: "itemQuantity",
             min: 1,
             step: "1",
-            value: props.item.itemQuantity,
-            id: props.item.itemId,
+            value: props.item.productQuantity,
+            id: props.item.productId,
           }}
         />
       </td>
       <td style={{ minWidth: "130px" }}>
         <EditableField
           onItemizedItemEdit={(evt) =>
-            props.onItemizedItemEdit(evt, props.item.itemId)
+            props.onItemizedItemEdit(evt, props.item.productId)
           }
           cellData={{
             leading: props.currency,
@@ -98,8 +99,8 @@ const ItemRow = (props) => {
             step: "0.01",
             presicion: 2,
             textAlign: "text-end",
-            value: props.item.itemPrice,
-            id: props.item.itemId,
+            value: props.item.productPrice,
+            id: props.item.productId,
           }}
         />
       </td>

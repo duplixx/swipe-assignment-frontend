@@ -85,7 +85,9 @@ hr {
 .form-control:focus {
   background: #f5f7f9;
 }
-
+.card {
+  min-height: 60rem;
+}
 #invoiceCapture {
   -webkit-user-select: none;
   -moz-user-select: none;

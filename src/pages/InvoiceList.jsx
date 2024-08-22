@@ -14,10 +14,12 @@ const InvoiceList = () => {
   const isListEmpty = invoiceList.length === 0;
   const [copyId, setCopyId] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Make sure to include dispatch if needed
+
   const handleCopyClick = () => {
     const invoice = getOneInvoice(copyId);
     if (!invoice) {
-      alert("Please enter the valid invoice id.");
+      alert("Please enter a valid invoice ID.");
     } else {
       navigate(`/create/${copyId}`);
     }
@@ -27,7 +29,7 @@ const InvoiceList = () => {
     <Row>
       <Col className="mx-auto" xs={12} md={8} lg={9}>
         <h3 className="fw-bold pb-2 pb-md-4 text-center">Swipe Assignment</h3>
-        <Card className="d-flex p-3 p-md-4 my-3 my-md-4 ">
+        <Card className="d-flex p-3 p-md-4 my-3 my-md-4">
           {isListEmpty ? (
             <div className="d-flex flex-column align-items-center">
               <h3 className="fw-bold pb-2 pb-md-4">No invoices present</h3>
@@ -54,9 +56,7 @@ const InvoiceList = () => {
                     onChange={(e) => setCopyId(e.target.value)}
                     placeholder="Enter Invoice ID to copy"
                     className="bg-white border"
-                    style={{
-                      height: "50px",
-                    }}
+                    style={{ height: "50px" }}
                   />
                 </div>
               </div>
@@ -66,7 +66,7 @@ const InvoiceList = () => {
                     <th>Invoice No.</th>
                     <th>Bill To</th>
                     <th>Due Date</th>
-                    <th>Total Amt.</th>
+                    <th>Total Amount</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -92,8 +92,8 @@ const InvoiceRow = ({ invoice, navigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
 
-  const handleDeleteClick = (invoiceId) => {
-    dispatch(deleteInvoice(invoiceId));
+  const handleDeleteClick = () => {
+    dispatch(deleteInvoice(invoice.id));
   };
 
   const handleEditClick = () => {
@@ -110,44 +110,42 @@ const InvoiceRow = ({ invoice, navigate }) => {
   };
 
   return (
-    <tr>
-      <td>{invoice.invoiceNumber}</td>
-      <td className="fw-normal">{invoice.billTo}</td>
-      <td className="fw-normal">{invoice.dateOfIssue}</td>
-      <td className="fw-normal">
-        {invoice.currency}
-        {invoice.total}
-      </td>
-      <td style={{ width: "5%" }}>
-        <Button variant="outline-primary" onClick={handleEditClick}>
-          <div className="d-flex align-items-center justify-content-center gap-2">
-            <BiSolidPencil />
-          </div>
-        </Button>
-      </td>
-      <td style={{ width: "5%" }}>
-        <Button variant="danger" onClick={() => handleDeleteClick(invoice.id)}>
-          <div className="d-flex align-items-center justify-content-center gap-2">
-            <BiTrash />
-          </div>
-        </Button>
-      </td>
-      <td style={{ width: "5%" }}>
-        <Button variant="secondary" onClick={openModal}>
-          <div className="d-flex align-items-center justify-content-center gap-2">
-            <BsEyeFill />
-          </div>
-        </Button>
-      </td>
+    <>
+      <tr>
+        <td>{invoice.invoiceNumber}</td>
+        <td className="fw-normal">{invoice.billTo}</td>
+        <td className="fw-normal">{invoice.dateOfIssue}</td>
+        <td className="fw-normal">
+          {invoice.currency} {invoice.total}
+        </td>
+        <td style={{ width: "5%" }}>
+          <Button variant="outline-primary" onClick={handleEditClick}>
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              <BiSolidPencil />
+            </div>
+          </Button>
+        </td>
+        <td style={{ width: "5%" }}>
+          <Button variant="danger" onClick={handleDeleteClick}>
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              <BiTrash />
+            </div>
+          </Button>
+        </td>
+        <td style={{ width: "5%" }}>
+          <Button variant="secondary" onClick={openModal}>
+            <div className="d-flex align-items-center justify-content-center gap-2">
+              <BsEyeFill />
+            </div>
+          </Button>
+        </td>
+      </tr>
       <InvoiceModal
         showModal={isOpen}
         closeModal={closeModal}
         info={{
-          isOpen,
           id: invoice.id,
           currency: invoice.currency,
-          currentDate: invoice.currentDate,
-          invoiceNumber: invoice.invoiceNumber,
           dateOfIssue: invoice.dateOfIssue,
           billTo: invoice.billTo,
           billToEmail: invoice.billToEmail,
@@ -163,14 +161,14 @@ const InvoiceRow = ({ invoice, navigate }) => {
           discountRate: invoice.discountRate,
           discountAmount: invoice.discountAmount,
         }}
-        items={invoice.items}
+        products={invoice.items} 
         currency={invoice.currency}
         subTotal={invoice.subTotal}
         taxAmount={invoice.taxAmount}
         discountAmount={invoice.discountAmount}
         total={invoice.total}
       />
-    </tr>
+    </>
   );
 };
 
