@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Tabs, Tab, Card, Button } from 'react-bootstrap';
+import { Tabs, Tab, Card } from 'react-bootstrap';
 import ProductsTab from '../pages/Products';
 import InvoiceDetails from './InvoiceDetails';
 
 const InvoiceForm = () => {
-  const [key, setKey] = useState('invoice'); 
+  const [key, setKey] = useState('invoice');
 
   return (
     <div>

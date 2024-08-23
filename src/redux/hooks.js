@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
-import { selectInvoiceList } from "./invoicesSlice";
+import { useSelector } from 'react-redux';
+import { selectInvoiceList } from './invoicesSlice';
 
 export const useInvoiceListData = () => {
   const invoiceList = useSelector(selectInvoiceList);
@@ -7,7 +7,7 @@ export const useInvoiceListData = () => {
   const getOneInvoice = (receivedId) => {
     return (
       invoiceList.find(
-        (invoice) => invoice.id.toString() === receivedId.toString()
+        (invoice) => invoice.id.toString() === receivedId.toString(),
       ) || null
     );
   };

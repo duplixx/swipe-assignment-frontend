@@ -1,69 +1,93 @@
-import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Card from "react-bootstrap/Card";
-import InvoiceItem from "./InvoiceItem";
-import InvoiceModal from "./InvoiceModal";
-import { BiArrowBack } from "react-icons/bi";
-import InputGroup from "react-bootstrap/InputGroup";
-import { useDispatch,useSelector } from "react-redux";
-import { addInvoice, updateInvoice } from "../redux/invoicesSlice";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import generateRandomId from "../utils/generateRandomId";
-import { useInvoiceListData } from "../redux/hooks";
-import { addProduct,deleteProduct,updateProduct } from "../redux/productSlice";
-const InvoiceForm = ( ) => {
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Card from 'react-bootstrap/Card';
+import InvoiceItem from './InvoiceItem';
+import InvoiceModal from './InvoiceModal';
+import { BiArrowBack } from 'react-icons/bi';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { useDispatch, useSelector } from 'react-redux';
+import { addInvoice, updateInvoice } from '../redux/invoicesSlice';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
+import generateRandomId from '../utils/generateRandomId';
+import { useInvoiceListData } from '../redux/hooks';
+import { fetchExchangeRates } from '../utils/currencyConversions';
+
+const InvoiceDetails = () => {
   const dispatch = useDispatch();
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const isCopy = location.pathname.includes("create");
-  const isEdit = location.pathname.includes("edit");
-  const cart = useSelector(state => state.cart);
+  const isCopy = location.pathname.includes('create');
+  const isEdit = location.pathname.includes('edit');
+  const cart = useSelector((state) => state.cart);
   const [isOpen, setIsOpen] = useState(false);
-  const [copyId, setCopyId] = useState("");
+  const [copyId, setCopyId] = useState('');
   const { getOneInvoice, listSize } = useInvoiceListData();
+  const [exchangeRates, setExchangeRates] = useState({});
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const products = useSelector((state) => state.products);
+
   const [formData, setFormData] = useState(
     isEdit
       ? getOneInvoice(params.id)
       : isCopy && params.id
-      ? {
-          ...getOneInvoice(params.id),
-          id: generateRandomId(),
-          invoiceNumber: listSize + 1,
-        }
-      : {
-          id: generateRandomId(),
-          currentDate: new Date().toLocaleDateString(),
-          invoiceNumber: listSize + 1,
-          dateOfIssue: "",
-          billTo: "",
-          billToEmail: "",
-          billToAddress: "",
-          billFrom: "",
-          billFromEmail: "",
-          billFromAddress: "",
-          notes: "",
-          total: "0.00",
-          subTotal: "0.00",
-          taxRate: "",
-          taxAmount: "0.00",
-          discountRate: "",
-          discountAmount: "0.00",
-          currency: "$",
-          items: [
-            {
-              productId: 0,
-              productName: "",
-              productDescription: "",
-              productPrice: "1.00",
-              productQuantity: 1,
-            },
-          ],
-        }
+        ? {
+            ...getOneInvoice(params.id),
+            id: generateRandomId(),
+            invoiceNumber: listSize + 1,
+            items: cart.map((item) => {
+              const product = products.find((p) => p.id === item.id);
+              return {
+                productId: item.id,
+                productName: product ? product.productName : item.productName,
+                productDescription: product
+                  ? product.productDescription
+                  : item.productDescription,
+                productPrice: product
+                  ? product.productPrice
+                  : item.productPrice,
+                productQuantity: item.productQuantity,
+              };
+            }),
+          }
+        : {
+            id: generateRandomId(),
+            currentDate: new Date().toLocaleDateString(),
+            invoiceNumber: listSize + 1,
+            dateOfIssue: '',
+            billTo: '',
+            billToEmail: '',
+            billToAddress: '',
+            billFrom: '',
+            billFromEmail: '',
+            billFromAddress: '',
+            notes: '',
+            total: '0.00',
+            subTotal: '0.00',
+            taxRate: '',
+            taxAmount: '0.00',
+            discountRate: '',
+            discountAmount: '0.00',
+            currency: selectedCurrency,
+            items: cart.map((item) => {
+              const product = products.find((p) => p.id === item.id);
+              return {
+                productId: item.id,
+                productName: product ? product.productName : item.productName,
+                productDescription: product
+                  ? product.productDescription
+                  : item.productDescription,
+                productPrice: product
+                  ? product.productPrice
+                  : item.productPrice,
+                productQuantity: item.productQuantity,
+              };
+            }),
+          },
   );
 
   useEffect(() => {
@@ -72,70 +96,68 @@ const InvoiceForm = ( ) => {
 
   const handleRowDel = (itemToDelete) => {
     const updatedItems = formData.items.filter(
-      (item) => item.productId !== itemToDelete.productId
+      (item) => item.productId !== itemToDelete.productId,
     );
     setFormData({ ...formData, items: updatedItems });
     handleCalculateTotal();
   };
 
-// const handleAddEvent = () => {
-//     const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-//     const newItem = {
-//         productId: id,
-//         productName: "",
-//         productDescription: "",
-//         productPrice: "1.00",
-//         productQuantity: 1,
-//     };
-//     setFormData((prevFormData) => {
-//         const updatedItems = [...prevFormData.items, newItem];
-//         return {
-//             ...prevFormData,
-//             items: updatedItems,
-//         };
-//     });
-//     dispatch(addProduct(newItem)); // Dispatch the addProduct action with the new item
-//     handleCalculateTotal();
-// };
+  useEffect(() => {
+    const loadExchangeRates = async () => {
+      const rates = await fetchExchangeRates(selectedCurrency);
+      console.log('Loaded exchange rates:', rates); // Log the loaded rates
+      setExchangeRates(rates);
+    };
 
-const handleCalculateTotal = () => {
+    loadExchangeRates();
+  }, [selectedCurrency]);
+
+  useEffect(() => {
+    handleCalculateTotal();
+  }, [exchangeRates]);
+
+  const onCurrencyChange = async (event) => {
+    const newCurrency = event.target.value;
+    setSelectedCurrency(newCurrency);
+    const rates = await fetchExchangeRates(newCurrency);
+    setExchangeRates(rates);
+    setFormData({ ...formData, currency: newCurrency });
+    handleCalculateTotal();
+  };
+
+  const handleCalculateTotal = () => {
     setFormData((prevFormData) => {
-        let subTotal = 0;
-        cart.forEach((product) => {
-            subTotal += parseFloat(product.productPrice) * product.productQuantity;
-        });
-        // prevFormData.items.forEach((item) => {
-        //     const product = cart.find((p) => p.productId === item.productId);
-        //     if (product) {
-        //         subTotal += parseFloat(product.productPrice) * item.productQuantity;
-        //     }
-        // });
+      let subTotal = 0;
 
-        const taxAmount = parseFloat(
-            subTotal * (prevFormData.taxRate / 100)
-        ).toFixed(2);
-        const discountAmount = parseFloat(
-            subTotal * (prevFormData.discountRate / 100)
-        ).toFixed(2);
-        const total = (
-            subTotal -
-            parseFloat(discountAmount) +
-            parseFloat(taxAmount)
-        ).toFixed(2);
+      // Calculate subtotal based on item prices and quantities
+      prevFormData.items.forEach((item) => {
+        const itemPrice = parseFloat(item.productPrice) || 0;
+        const itemQuantity = parseFloat(item.productQuantity) || 0;
+        subTotal += itemPrice * itemQuantity;
+      });
 
-        return {
-            ...prevFormData,
-            subTotal: parseFloat(subTotal).toFixed(2),
-            taxAmount,
-            discountAmount,
-            total,
-        };
+      // Calculate tax and discount amounts
+      const taxAmount = parseFloat(
+        (subTotal * (prevFormData.taxRate / 100)).toFixed(2),
+      );
+      const discountAmount = parseFloat(
+        (subTotal * (prevFormData.discountRate / 100)).toFixed(2),
+      );
+      const total = (subTotal - discountAmount + taxAmount).toFixed(2);
+
+      return {
+        ...prevFormData,
+        subTotal: subTotal.toFixed(2),
+        taxAmount: taxAmount.toFixed(2),
+        discountAmount: discountAmount.toFixed(2),
+        total,
+      };
     });
-};
+  };
 
   const onItemizedItemEdit = (evt, id) => {
     const updatedItems = formData.items.map((oldItem) => {
-      if (oldItem.itemId === id) {
+      if (oldItem.productId === id) {
         return { ...oldItem, [evt.target.name]: evt.target.value };
       }
       return oldItem;
@@ -148,10 +170,6 @@ const handleCalculateTotal = () => {
   const editField = (name, value) => {
     setFormData({ ...formData, [name]: value });
     handleCalculateTotal();
-  };
-
-  const onCurrencyChange = (selectedOption) => {
-    setFormData({ ...formData, currency: selectedOption.currency });
   };
 
   const openModal = (event) => {
@@ -167,29 +185,48 @@ const handleCalculateTotal = () => {
   const handleAddInvoice = () => {
     if (isEdit) {
       dispatch(updateInvoice({ id: params.id, updatedInvoice: formData }));
-      alert("Invoice updated successfuly 🥳");
+      alert('Invoice updated successfully 🥳');
     } else if (isCopy) {
       dispatch(addInvoice({ id: generateRandomId(), ...formData }));
-      alert("Invoice added successfuly 🥳");
+      alert('Invoice added successfully 🥳');
     } else {
       dispatch(addInvoice(formData));
-      alert("Invoice added successfuly 🥳");
+      alert('Invoice added successfully 🥳');
     }
-    navigate("/");
+    navigate('/');
   };
 
   const handleCopyInvoice = () => {
-    const recievedInvoice = getOneInvoice(copyId);
-    if (recievedInvoice) {
+    const receivedInvoice = getOneInvoice(copyId);
+    if (receivedInvoice) {
       setFormData({
-        ...recievedInvoice,
+        ...receivedInvoice,
         id: formData.id,
         invoiceNumber: formData.invoiceNumber,
       });
     } else {
-      alert("Invoice does not exists!!!!!");
+      alert('Invoice does not exist!!!!!');
     }
   };
+
+  useEffect(() => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      items: cart.map((item) => {
+        const product = products.find((p) => p.id === item.id);
+        return {
+          productId: item.id,
+          productName: product ? product.productName : item.productName,
+          productDescription: product
+            ? product.productDescription
+            : item.productDescription,
+          productPrice: product ? product.productPrice : item.productPrice,
+          productQuantity: item.productQuantity,
+        };
+      }),
+    }));
+    handleCalculateTotal();
+  }, [cart, exchangeRates, selectedCurrency, products]);
 
   return (
     <Form onSubmit={openModal}>
@@ -220,7 +257,7 @@ const handleCalculateTotal = () => {
                     value={formData.dateOfIssue}
                     name="dateOfIssue"
                     onChange={(e) => editField(e.target.name, e.target.value)}
-                    style={{ maxWidth: "150px" }}
+                    style={{ maxWidth: '150px' }}
                     required
                   />
                 </div>
@@ -233,7 +270,7 @@ const handleCalculateTotal = () => {
                   name="invoiceNumber"
                   onChange={(e) => editField(e.target.name, e.target.value)}
                   min="1"
-                  style={{ maxWidth: "70px" }}
+                  style={{ maxWidth: '70px' }}
                   required
                 />
               </div>
@@ -345,7 +382,7 @@ const handleCalculateTotal = () => {
                 <hr />
                 <div
                   className="d-flex flex-row align-items-start justify-content-between"
-                  style={{ fontSize: "1.125rem" }}
+                  style={{ fontSize: '1.125rem' }}
                 >
                   <span className="fw-bold">Total:</span>
                   <span className="fw-bold">
@@ -375,7 +412,7 @@ const handleCalculateTotal = () => {
               onClick={handleAddInvoice}
               className="d-block w-100 mb-2"
             >
-              {isEdit ? "Update Invoice" : "Add Invoice"}
+              {isEdit ? 'Update Invoice' : 'Add Invoice'}
             </Button>
             <Button variant="primary" type="submit" className="d-block w-100">
               Review Invoice
@@ -414,20 +451,17 @@ const handleCalculateTotal = () => {
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Currency:</Form.Label>
               <Form.Select
-                onChange={(event) =>
-                  onCurrencyChange({ currency: event.target.value })
-                }
+                onChange={(event) => onCurrencyChange(event)}
                 className="btn btn-light my-1"
                 aria-label="Change Currency"
               >
-                <option value="$">USD (United States Dollar)</option>
-                <option value="£">GBP (British Pound Sterling)</option>
-                <option value="¥">JPY (Japanese Yen)</option>
-                <option value="$">CAD (Canadian Dollar)</option>
-                <option value="$">AUD (Australian Dollar)</option>
-                <option value="$">SGD (Singapore Dollar)</option>
-                <option value="¥">CNY (Chinese Renminbi)</option>
-                <option value="₿">BTC (Bitcoin)</option>
+                <option value="USD">$ (United States Dollar)</option>
+                <option value="GBP">£ (British Pound Sterling)</option>
+                <option value="JPY">¥ (Japanese Yen)</option>
+                <option value="CAD">$ (Canadian Dollar)</option>
+                <option value="AUD">$ (Australian Dollar)</option>
+                <option value="SGD">$ (Singapore Dollar)</option>
+                <option value="CNY">¥ (Chinese Renminbi)</option>
               </Form.Select>
             </Form.Group>
             <Form.Group className="my-3">
@@ -491,4 +525,4 @@ const handleCalculateTotal = () => {
   );
 };
 
-export default InvoiceForm;
+export default InvoiceDetails;

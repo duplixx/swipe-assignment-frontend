@@ -1,25 +1,24 @@
-import React, { useState } from "react";
-import { Button, Card, Col, Row, Table } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { BiSolidPencil, BiTrash } from "react-icons/bi";
-import { BsEyeFill } from "react-icons/bs";
-import InvoiceModal from "../components/InvoiceModal";
-import { useNavigate } from "react-router-dom";
-import { useInvoiceListData } from "../redux/hooks";
-import { useDispatch } from "react-redux";
-import { deleteInvoice } from "../redux/invoicesSlice";
+import React, { useState } from 'react';
+import { Button, Card, Col, Row, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { BiSolidPencil, BiTrash } from 'react-icons/bi';
+import { BsEyeFill } from 'react-icons/bs';
+import InvoiceModal from '../components/InvoiceModal';
+import { useNavigate } from 'react-router-dom';
+import { useInvoiceListData } from '../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { deleteInvoice } from '../redux/invoicesSlice';
 
 const InvoiceList = () => {
   const { invoiceList, getOneInvoice } = useInvoiceListData();
   const isListEmpty = invoiceList.length === 0;
-  const [copyId, setCopyId] = useState("");
+  const [copyId, setCopyId] = useState('');
   const navigate = useNavigate();
-  const dispatch = useDispatch(); // Make sure to include dispatch if needed
 
   const handleCopyClick = () => {
     const invoice = getOneInvoice(copyId);
     if (!invoice) {
-      alert("Please enter a valid invoice ID.");
+      alert('Please enter a valid invoice ID.');
     } else {
       navigate(`/create/${copyId}`);
     }
@@ -56,7 +55,7 @@ const InvoiceList = () => {
                     onChange={(e) => setCopyId(e.target.value)}
                     placeholder="Enter Invoice ID to copy"
                     className="bg-white border"
-                    style={{ height: "50px" }}
+                    style={{ height: '50px' }}
                   />
                 </div>
               </div>
@@ -118,21 +117,21 @@ const InvoiceRow = ({ invoice, navigate }) => {
         <td className="fw-normal">
           {invoice.currency} {invoice.total}
         </td>
-        <td style={{ width: "5%" }}>
+        <td style={{ width: '5%' }}>
           <Button variant="outline-primary" onClick={handleEditClick}>
             <div className="d-flex align-items-center justify-content-center gap-2">
               <BiSolidPencil />
             </div>
           </Button>
         </td>
-        <td style={{ width: "5%" }}>
+        <td style={{ width: '5%' }}>
           <Button variant="danger" onClick={handleDeleteClick}>
             <div className="d-flex align-items-center justify-content-center gap-2">
               <BiTrash />
             </div>
           </Button>
         </td>
-        <td style={{ width: "5%" }}>
+        <td style={{ width: '5%' }}>
           <Button variant="secondary" onClick={openModal}>
             <div className="d-flex align-items-center justify-content-center gap-2">
               <BsEyeFill />
@@ -161,7 +160,7 @@ const InvoiceRow = ({ invoice, navigate }) => {
           discountRate: invoice.discountRate,
           discountAmount: invoice.discountAmount,
         }}
-        products={invoice.items} 
+        products={invoice.items}
         currency={invoice.currency}
         subTotal={invoice.subTotal}
         taxAmount={invoice.taxAmount}

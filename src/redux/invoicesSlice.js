@@ -1,7 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const invoicesSlice = createSlice({
-  name: "invoices",
+  name: 'invoices',
   initialState: [],
   reducers: {
     addInvoice: (state, action) => {
@@ -12,11 +12,22 @@ const invoicesSlice = createSlice({
     },
     updateInvoice: (state, action) => {
       const index = state.findIndex(
-        (invoice) => invoice.id === action.payload.id
+        (invoice) => invoice.id === action.payload.id,
       );
       if (index !== -1) {
         state[index] = action.payload.updatedInvoice;
       }
+    },
+    updateProductInInvoices: (state, action) => {
+      const updatedProduct = action.payload;
+      return state.map((invoice) => ({
+        ...invoice,
+        items: invoice.items.map((item) =>
+          item.productId === updatedProduct.id
+            ? { ...item, ...updatedProduct }
+            : item,
+        ),
+      }));
     },
   },
 });
@@ -25,6 +36,7 @@ export const {
   addInvoice,
   deleteInvoice,
   updateInvoice,
+  updateProductInInvoices,
 } = invoicesSlice.actions;
 
 export const selectInvoiceList = (state) => state.invoices;

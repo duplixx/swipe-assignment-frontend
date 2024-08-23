@@ -8,20 +8,18 @@ export const productsSlice = createSlice({
       state.push(action.payload);
     },
     deleteProduct: (state, action) => {
-      return state.filter((item) => item.itemId !== action.payload);
+      return state.filter((product) => product.id !== action.payload);
     },
     updateProduct: (state, action) => {
-      const index = state.findIndex(
-        (item) => item.itemId === action.payload.id
-      );
+      const index = state.findIndex((item) => item.id === action.payload.id);
       if (index !== -1) {
-        state[index] = action.payload.updatedItem;
+        state[index] = { ...state[index], ...action.payload.updatedItem };
       }
-
     },
   },
 });
 export const fetchAllProducts = (state) => state.items;
-export const { updateProduct, addProduct, deleteProduct } = productsSlice.actions;
+export const { updateProduct, addProduct, deleteProduct } =
+  productsSlice.actions;
 
 export default productsSlice.reducer;
